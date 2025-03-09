@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hayatımın Anları</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>BU BENİM HAYATIM!</h1>
+       <img src="ben.jpg" alt="Benim Fotoğrafım" class="profile-image" id="profilePic">
+    </header>
+<div id="imgModal" class="img-modal">
+    <span class="close-img-modal">&times;</span>
+    <img class="img-modal-content" id="modalImg">
+</div>
+
+    <section>
+        <h2>Hayatımın Önemli Anları</h2>
+        <h3>Başlangıç - 2005</h3>
+        <p>İşte doğduğum ilk anlardan bazı kareler:</p>
+        <div class="photo-grid">
+            <img src="dogum-2005.jpg" alt="Doğum 2005">
+            <img src="bebeklik-1.jpg" alt="Bebeklik 1">
+            <img src="bebeklik-2.jpg" alt="Bebeklik 2">
+            <img src="bebeklik-3.jpg" alt="Bebeklik 3">
+        </div>
+        
+        <h3>Üniversiteye Başlangıç - 2024</h3>
+        <p>Tercih sonucunda ERÜ yazdığını gördükten sonraki büründüğüm kişilik ve ERÜ'deki muhtemel ben:</p>
+        <div class="photo-grid">
+            <img src="universite-1.jpg" alt="Üniversite 1">
+            <img src="universite-2.jpg" alt="Üniversite 2">
+            <img src="universite-3.jpg" alt="Üniversite 3">
+        </div>
+    
+        <section id="updates">
+            <h2>Günlük ve Güncellemeler</h2>
+            <article>
+                <h3>Bu Hafta Sonu Full Bunlarla Uğraştım Bilmiyorum Değer Mi Ama Yeni şeyler öğrendim :D </h3>
+                <p>İlk önce tamamen merakla girdim ne yapabilirim diye sonuç olarak böyle bir şey çıktı eğer bir proje mantığında olsa daha iyi şeyler çıkar elbette keyfi bu kadar oldu şuanlık.</p>
+                <p>Hayat yeni öğrendiğimiz şeylerden ibarettir e bugün çok mutluyum çünkü bu hafta sonu çok fazla şey öğrendim.</p>
+            </article>
+            <article>
+                <h3>Yeni Bir Devir Başlıyor!</h3>
+                <p>Bugün yazılımın bana göre bir şey olduğunu öğrendim güzel şeyler yaptım ve mutluyum artık devir değişti aklımda artık sürekli ne yapabilirim gibi planlar dönecek.</p>
+            </article>
+        </section>
+    </section>
+
+    <section id="user-content">
+        <h2>Sen De Bir Şeyler Paylaş benimle??</h2>
+        <textarea id="userInput" placeholder="HADİİİ..."></textarea>
+        <button onclick="addContent()">Bas gitsin</button>
+<button id="openModalBtn">Diğerleri Ne demiş gör</button>
+</section>
+
+
+<div id="modal" class="modal">
+  <div class="modal-content">
+    <!-- Modalı kapatmak için X butonu -->
+    <span id="closeModal" class="close">&times;</span>
+    <h3>Eklenen İçerikler</h3>
+    <!-- İçeriklerin listeleneceği alan -->
+    <div id="contentDisplay"></div>
+  </div>
+</div>
+    </section>
+
+    <section id="interaction">
+        <h2>Tanışmak Serbest!</h2>
+        <p>Merhaba! Eğer tanışmak istersen, bana herhangi bir şey söylemek istersen buyur bekliyorum.</p>
+        <button onclick="window.open('https://mail.google.com/mail/?view=cm&fs=1&to=hasansn0521@gmail.com', '_blank');">
+            Bana Mail Gönder
+        </button>
+    </section>
+
+    <footer>
+        <p>&copy; 2025 Hasan. Tüm hakları saklıdır.</p>
+    </footer>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics-compat.js"></script>
+    
+    <script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyCT7XKEuvm32WBppNrcx2psINloZE8ue2Y",
+        authDomain: "hasan-1b4d7.firebaseapp.com",
+        projectId: "hasan-1b4d7",
+        storageBucket: "hasan-1b4d7.appspot.com",
+        messagingSenderId: "774140922624",
+        appId: "1:774140922624:web:1c21f5a311e637917881e5",
+        measurementId: "G-1M87L2QNKW"
+    };
+
+    // Firebase başlatılıyor
+    firebase.initializeApp(firebaseConfig);
+
+    // Firestore başlatılıyor
+    const db = firebase.firestore();
+    const analytics = firebase.analytics();
+
+    console.log("🔥 Firebase başarıyla bağlandı!");
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", loadContent);
+
+        function addContent() {
+            let userInput = document.getElementById("userInput").value;
+            if (userInput.trim() === "") {
+                alert("Boş içerik eklenemez!");
+                return;
+            }
+
+            let contentDisplay = document.getElementById("contentDisplay");
+            let newContent = document.createElement("p");
+            newContent.textContent = userInput;
+            newContent.classList.add("user-post");
+            contentDisplay.appendChild(newContent);
+            
+            saveContent(userInput);
+            document.getElementById("userInput").value = "";
+        }
+
+        function saveContent(content) {
+            db.collection("userPosts").add({
+                text: content,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                console.log("✅ İçerik Firestore'a kaydedildi!");
+            }).catch(error => {
+                console.error("❌ Hata: ", error);
+            });
+        }
+
+        function loadContent() {
+            db.collection("userPosts").orderBy("timestamp", "desc").get()
+            .then(snapshot => {
+                let contentDisplay = document.getElementById("contentDisplay");
+                snapshot.forEach(doc => {
+                    let newContent = document.createElement("p");
+                    newContent.textContent = doc.data().text;
+                    newContent.classList.add("user-post");
+                    contentDisplay.appendChild(newContent);
+                });
+            }).catch(error => {
+                console.error("❌ İçerik yüklenirken hata oluştu: ", error);
+            });
+        }
+    </script>
+    
+    <script>
+// Modalı açan butonun tıklama olayı
+document.getElementById("openModalBtn").addEventListener("click", function() {
+    document.getElementById("modal").style.display = "block";
+});
+
+// Modalı kapatmak için X butonunun tıklama olayı
+document.getElementById("closeModal").addEventListener("click", function() {
+    document.getElementById("modal").style.display = "none";
+});
+
+// Modal dışına tıklanırsa modalı kapatır
+window.addEventListener("click", function(event) {
+    if (event.target == document.getElementById("modal")) {
+        document.getElementById("modal").style.display = "none";
+    }
+});
+
+</script>
+
+<script>
+
+// Modal ve Görselleri Seçiyoruz
+const modal = document.getElementById("imgModal");
+const profilePic = document.getElementById("profilePic");
+const modalImg = document.getElementById("modalImg");
+const closeModal = document.querySelector(".close-img-modal");
+
+// Profil fotoğrafına tıklandığında modal açılacak
+profilePic.addEventListener("click", function() {
+    modal.style.display = "block";
+    modalImg.src = profilePic.src; // Aynı fotoğrafı modal içine koy
+});
+
+// Kapatma butonuna tıklanınca modal kapanacak
+closeModal.addEventListener("click", function() {
+    modal.style.display = "none";
+});
+
+// Modalın dışına tıklanırsa veya dokunulursa kapanmasını sağlıyoruz
+window.addEventListener("click", function(event) {
+    if (event.target === modal) {
+        modal.style.display = "none";
+    }
+});
+
+window.addEventListener("touchstart", function(event) {
+    if (event.target === modal) {
+        modal.style.display = "none";
+    }
+});
+
+
+</script>
+
+</body>
+</html>
